@@ -8,15 +8,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.13'
+          node-version: 18
 
       - name: Install Dependencies
-        run: npm install
+        run: npm i
 
       - name: Rewrite Manifest Path in Index
         run: sed -i 's@/manifest.json@${{ github.event.repository.name }}/manifest.json@g' ./index.html && cat index.html
@@ -49,4 +49,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
