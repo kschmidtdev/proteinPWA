@@ -3,6 +3,7 @@ import { property, customElement } from 'lit/decorators.js';
 import { resolveRouterPath } from '../router';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+
 @customElement('app-header')
 export class AppHeader extends LitElement {
   @property({ type: String }) title = 'proteinPWA';
@@ -56,6 +57,31 @@ export class AppHeader extends LitElement {
     }
   `;
 
+  private requestNotificationPermission() {
+    if ("Notification" in window) {
+      console.log("Notifications API is supported");
+
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+        }
+      });
+    } else {
+      console.log("Notifications API is not supported");
+    }
+  }
+
+  private displayNotification() {
+    const notifTitle = "Hi";
+    const notifBody = "It's time to drink some water 💧🥤";
+    const notifImg = "/assets/media/toast.jpg";
+    const options = {
+      body: notifBody,
+      icon: notifImg,
+    };
+    new Notification(notifTitle, options);
+  }
+
   render() {
     return html`
       <header>
@@ -64,6 +90,12 @@ export class AppHeader extends LitElement {
           ${this.enableBack ? html`<sl-button size="small" href="${resolveRouterPath()}">
             Back
           </sl-button>` : null}
+
+          <div id="notification" class="notification">
+          <sl-button appearance="accent" @click=${this.requestNotificationPermission}>Request Permissions</sl-button>
+          <sl-button appearance="accent" @click=${this.displayNotification}>Display Notifications</sl-button>
+
+        </div>
 
           <h1>${this.title}</h1>
         </div>

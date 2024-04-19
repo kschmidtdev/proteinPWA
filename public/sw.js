@@ -2,6 +2,52 @@ importScripts(
     'https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js'
 );
 
+self.addEventListener('push', function(event) {
+    const data = JSON.parse(event.data.text());
+    console.log("push notification heard.");
+    console.log("data", data);
+
+    event.waitUntil(
+      registration.showNotification(data.title, {
+        body: data.message,
+        icon: 'assets/media/toast.jpg'
+      })
+    );
+  });
+
+  self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then(function(clientList) {
+          if (clientList.length > 0) {
+            let client = clientList[0];
+
+            for (let i = 0; i < clientList.length; i++) {
+              if (clientList[i].focused) {
+                client = clientList[i];
+              }
+            }
+
+            return client.focus();
+          }
+
+          return clients.openWindow('/');
+        })
+    );
+  });
+
+  self.addEventListener('pushsubscriptionchange', function(event) {
+    event.waitUntil(
+      Promise.all([
+        Promise.resolve(event.oldSubscription ? deleteSubscription(event.oldSubscription) : true),
+          Promise.resolve(event.newSubscription ? event.newSubscription : subscribePush(registration))
+            .then(function(sub) { return saveSubscription(sub); })
+      ])
+    );
+  });
+
 // This is your Service Worker, you can put any of your custom Service Worker
 // code in this file, above the `precacheAndRoute` line.
 
