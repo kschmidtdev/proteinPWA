@@ -25,6 +25,7 @@ console.log("hi there");
 
 // Initialize Firebase Cloud Messaging and get a reference to the service
 const messaging = getMessaging(app);
+console.log(messaging);
 
 @customElement('app-header')
 export class AppHeader extends LitElement {
@@ -103,6 +104,7 @@ export class AppHeader extends LitElement {
     });
 
     console.log("hello here too");
+    console.log(pushSubscription);
     // Send push subscription to our server to persist it
     //saveSubscription(pushSubscription);
   }
