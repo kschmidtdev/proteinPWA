@@ -3,6 +3,28 @@ import { property, customElement } from 'lit/decorators.js';
 import { resolveRouterPath } from '../router';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+import { initializeApp } from "firebase/app";
+import { getMessaging } from "firebase/messaging";
+
+// TODO: Replace the following with your app's Firebase project configuration
+// See: https://firebase.google.com/docs/web/learn-more#config-object
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBNg6V9p9nUwxFTNaazfgWCsyv1tFcp2eI",
+  authDomain: "proteinpwa.firebaseapp.com",
+  projectId: "proteinpwa",
+  storageBucket: "proteinpwa.appspot.com",
+  messagingSenderId: "550211047127",
+  appId: "1:550211047127:web:4f0c360c03081f44f3ea92"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+console.log("hi there");
+
+// Initialize Firebase Cloud Messaging and get a reference to the service
+const messaging = getMessaging(app);
 
 @customElement('app-header')
 export class AppHeader extends LitElement {
@@ -57,6 +79,34 @@ export class AppHeader extends LitElement {
     }
   `;
 
+  private urlBase64ToUint8Array(base64String : string) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    var rawData = window.atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+
+    for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  private async subscribeForPush() {
+    const registration = await navigator.serviceWorker.ready;
+    const convertedVapidKey = this.urlBase64ToUint8Array("BAd1pSGbPAPdwURoR5Mxpi916unwPs6sPFmG1lvGRLs6D3xuawmQCjIZDe8Ga4Az4R84LBKohKMDeHW0R1BkHXc");
+    const pushSubscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true, // Should be always true as currently browsers only support explicitly visible notifications
+        applicationServerKey: convertedVapidKey
+    });
+
+    console.log("hello here too");
+    // Send push subscription to our server to persist it
+    //saveSubscription(pushSubscription);
+  }
+
   private requestNotificationPermission() {
     if ("Notification" in window) {
       console.log("Notifications API is supported");
@@ -64,6 +114,7 @@ export class AppHeader extends LitElement {
       Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
           console.log('Notification permission granted.');
+          Promise.resolve(this.subscribeForPush());
         }
       });
     } else {
