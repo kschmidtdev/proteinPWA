@@ -104,7 +104,7 @@ export class AppHeader extends LitElement {
     });
 
     console.log("hello here too");
-    console.log(pushSubscription);
+    console.log(pushSubscription.toJSON());
     // Send push subscription to our server to persist it
     //saveSubscription(pushSubscription);
   }
